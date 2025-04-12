@@ -1,0 +1,73 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+# Load dataset
+df = pd.read_csv('/content/House_Rent_Dataset.csv')
+
+# Use only Size and Rent for regression
+df = df[['Size', 'Rent']]
+
+# Describe data
+print(df.describe())
+
+# Data distribution
+plt.title('Rent Distribution Plot')
+sns.histplot(df['Rent'], kde=True, color='skyblue')
+plt.show()
+
+# Relationship between Size and Rent
+plt.scatter(df['Size'], df['Rent'], color='coral')
+plt.title('Rent vs Size')
+plt.xlabel('House Size (sq ft)')
+plt.ylabel('Rent')
+plt.box(False)
+plt.show()
+
+# Split data
+X = df[['Size']]  # Independent variable
+y = df[['Rent']]  # Dependent variable
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+# Linear Regression model
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+
+# Predictions
+y_pred_train = regressor.predict(X_train)
+y_pred_test = regressor.predict(X_test)
+
+# Plot training set
+plt.scatter(X_train, y_train, color='lightcoral')
+plt.plot(X_train, y_pred_train, color='firebrick')
+plt.title('Rent vs Size (Training Set)')
+plt.xlabel('House Size (sq ft)')
+plt.ylabel('Rent')
+plt.legend(['Regression Line', 'Training Data'])
+plt.box(False)
+plt.show()
+
+# Plot test set
+plt.scatter(X_test, y_test, color='lightcoral')
+plt.plot(X_train, y_pred_train, color='firebrick')  # Line is based on training
+plt.title('Rent vs Size (Test Set)')
+plt.xlabel('House Size (sq ft)')
+plt.ylabel('Rent')
+plt.legend(['Regression Line', 'Test Data'])
+plt.box(False)
+plt.show()
+
+# Regression Coefficient and Intercept
+print(f'Coefficient: {regressor.coef_}')
+print(f'Intercept: {regressor.intercept_}')
+
+# Model evaluation
+print(f'R2 Score: {r2_score(y_test, y_pred_test)}')
+print(f'Mean Squared Error: {mean_squared_error(y_test, y_pred_test)}')
