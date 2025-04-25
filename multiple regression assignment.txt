@@ -1,0 +1,56 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.linear_model import LinearRegression
+
+# Load dataset
+df_insurance = pd.read_csv('/content/insurance.csv')  # Change path if needed
+df_insurance.head()
+
+# Describe data
+print(df_insurance.describe())
+
+# Distribution of charges (target variable)
+plt.title('Charges Distribution Plot')
+sns.histplot(df_insurance['charges'], kde=True, color='skyblue')
+plt.show()
+
+# Relationship between BMI and Charges
+plt.scatter(df_insurance['bmi'], df_insurance['charges'], color='mediumseagreen')
+plt.title('Charges vs BMI')
+plt.xlabel('BMI')
+plt.ylabel('Charges')
+plt.box(False)
+plt.show()
+
+# Split data into independent (X) and dependent (y) variables
+X = df_insurance.iloc[:, :-1].values  # all columns except 'charges'
+y = df_insurance.iloc[:, -1].values   # charges column
+
+# One-hot encode categorical columns: 'sex', 'smoker', 'region'
+ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [1, 4, 5])],
+                       remainder='passthrough')
+X = np.array(ct.fit_transform(X))
+
+# Train/Test split
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                    test_size=0.2,
+                                                    random_state=0)
+
+# Train multiple linear regression model
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+
+# Predict results
+y_pred = regressor.predict(X_test)
+
+# Compare predictions with actual values
+np.set_printoptions(precision=2)
+result = np.concatenate((y_pred.reshape(len(y_pred), 1),
+                         y_test.reshape(len(y_test), 1)), 1)
+print("Predicted vs Actual:\n", result)

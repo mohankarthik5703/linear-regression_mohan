@@ -1,0 +1,69 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+
+# Load dataset
+df = pd.read_csv('/content/Engine_Size_vs_MPG.csv')  # Update the path as needed
+df.head()
+
+# Describe data
+print(df.describe())
+
+# Distribution plot
+plt.title('MPG Distribution Plot')
+sns.histplot(df['MPG'], kde=True, color='salmon')
+plt.show()
+
+# Scatter plot: Engine Size vs. MPG
+plt.scatter(df['Engine Size (L)'], df['MPG'], color='skyblue')
+plt.title('Engine Size vs. MPG')
+plt.xlabel('Engine Size (L)')
+plt.ylabel('Miles Per Gallon (MPG)')
+plt.grid(True)
+plt.show()
+
+# Independent and dependent variables
+X = df.iloc[:, 0:1].values  # Engine Size
+y = df.iloc[:, 1].values    # MPG
+
+# Linear Regression
+lr = LinearRegression()
+lr.fit(X, y)
+
+# Polynomial Regression (Degree 4)
+pr = PolynomialFeatures(degree=4)
+X_poly = pr.fit_transform(X)
+lr_poly = LinearRegression()
+lr_poly.fit(X_poly, y)
+
+# Predictions
+y_pred_lr = lr.predict(X)
+y_pred_poly = lr_poly.predict(X_poly)
+
+# Visualization - Linear
+plt.scatter(X, y, color='skyblue')
+plt.plot(X, y_pred_lr, color='red')
+plt.title('Linear Regression: Engine Size vs MPG')
+plt.xlabel('Engine Size (L)')
+plt.ylabel('MPG')
+plt.grid(True)
+plt.show()
+
+# Visualization - Polynomial
+X_grid = np.arange(min(X), max(X), 0.1).reshape(-1, 1)
+plt.scatter(X, y, color='skyblue')
+plt.plot(X_grid, lr_poly.predict(pr.fit_transform(X_grid)), color='darkorange')
+plt.title('Polynomial Regression: Engine Size vs MPG')
+plt.xlabel('Engine Size (L)')
+plt.ylabel('MPG')
+plt.grid(True)
+plt.show()
+
+# Predict MPG for engine size 2.3
+engine_size = 2.3
+print(f'Linear Regression MPG prediction for {engine_size}L: {lr.predict([[engine_size]])[0]:.2f}')
+print(f'Polynomial Regression MPG prediction for {engine_size}L: {lr_poly.predict(pr.transform([[engine_size]]))[0]:.2f}')
